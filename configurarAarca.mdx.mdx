@@ -55,14 +55,83 @@ cd arca
 
 ### Passo 3: Configurar variáveis de ambiente
 
-No diretório do projeto, edite o arquivo `.env` com as configurações adequadas:
+Crie e configure os arquivos `.env` para cada serviço conforme necessário.
 
-```sh
-cp .env.example .env
-nano .env
+#### Backend `.env`
+```ini
+NODE_ENV=development
+BACKEND_URL=http://localhost:8085
+FRONTEND_URL=http://localhost:3000
+MICROSERVICE_BASE_URL=http://localhost:3003
+
+PROXY_PORT=443
+PORT=8085
+
+DB_DIALECT=postgres
+DB_HOST=postgres
+DB_PORT=5432
+DB_USER=arca
+DB_PASS=senha-segura
+DB_NAME=arca_db
+
+JWT_SECRET=sua-chave-secreta
+JWT_REFRESH_SECRET=sua-chave-refresh
+INSTALLATION_TOKEN=
+
+REDIS_URI=redis://:senha-segura@redis:6379
+REDIS_OPT_LIMITER_MAX=1
+REDIS_OPT_LIMITER_DURATION=3000
+REDIS_SECRET_KEY=MULTI100
+
+USER_LIMIT=10000
+CONNECTIONS_LIMIT=100000
+CLOSED_SEND_BY_ME=true
+
+ENABLE_RABBITMQ=true
+RABBITMQ_URL=amqp://user:123456@rabbitmq:5672/
+
+S3_ENDPOINT=minio
+S3_PORT=9000
+S3_ACCESS_KEY=admin
+S3_SECRET_KEY=admin123
+S3_BUCKET=meu-bucket
+S3_REGION=us-east-1
+S3_USE_SSL=false
 ```
 
-Configure os parâmetros essenciais, incluindo a URL do backend, o banco de dados e o IP autorizado.
+#### Frontend `.env`
+```ini
+REACT_APP_BACKEND_URL=http://localhost:8085
+REACT_APP_HOURS_CLOSE_TICKETS_AUTO=24
+
+REACT_APP_FACEBOOK_APP_ID=624594816935201
+REACT_APP_FACEBOOK_APP_SECRET=e8b9c3067a48cc463fb1e67e66dd6eeb
+```
+
+#### Channels `.env`
+```ini
+REDIS_URI=redis://:senha-segura@redis:6379
+REDIS_OPT_LIMITER_MAX=1
+REDIS_OPT_LIMITER_DURATION=3000
+REDIS_SECRET_KEY=MULTI100
+
+EVOAPI_URL=http://localhost:8080
+EVOAPI_KEY=sua-chave-api-evolution
+AUTHENTICATION_API_KEY=sua-chave-autenticacao
+WEBHOOK_URL=http://localhost:3003
+
+DATABASE_PROVIDER=postgresql
+DATABASE_URL=postgresql://arca:senha-segura@postgres:5432/arca_db
+
+DATABASE_SAVE_DATA_INSTANCE=true
+DATABASE_SAVE_DATA_NEW_MESSAGE=true
+DATABASE_SAVE_DATA_CONTACTS=true
+
+ENABLE_RABBITMQ=true
+RABBITMQ_URL=amqp://user:123456@rabbitmq:5672/
+
+WA_WSOCKETVERSION="[2,3000,1019780051]"
+```
 
 ### Passo 4: Configurar o `docker-compose.yml`
 
@@ -98,8 +167,8 @@ services:
     container_name: arca-rabbitmq
     restart: always
     environment:
-      RABBITMQ_DEFAULT_USER: arca
-      RABBITMQ_DEFAULT_PASS: senha-segura
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: 123456
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -112,8 +181,8 @@ services:
       - "9000:9000"
       - "9001:9001"
     environment:
-      MINIO_ROOT_USER: arca
-      MINIO_ROOT_PASSWORD: senha-segura
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: admin123
     command: server /data --console-address ":9001"
     volumes:
       - minio_data:/data
@@ -128,8 +197,8 @@ services:
       - rabbitmq
     ports:
       - "8080:8080"
-    environment:
-      DATABASE_URL: postgres://arca:senha-segura@postgres:5432/arca_db
+    env_file:
+      - .env.backend
 
   frontend:
     image: arca-frontend:latest
@@ -139,6 +208,8 @@ services:
       - backend
     ports:
       - "3000:3000"
+    env_file:
+      - .env.frontend
 
   channels:
     image: arca-channels:latest
@@ -148,6 +219,8 @@ services:
       - backend
     ports:
       - "5000:5000"
+    env_file:
+      - .env.channels
 
   nginx:
     image: jc21/nginx-proxy-manager
@@ -170,54 +243,8 @@ volumes:
 
 ### Passo 5: Iniciar os containers
 
-Execute o seguinte comando para subir os serviços:
-
 ```sh
 docker-compose up -d
 ```
 
-Aguarde até que os containers estejam em execução.
-
-## Validação da Instalação
-
-Após a instalação, certifique-se de que o IP da máquina está liberado em nossas licenças. Para verificar se a Arca está funcionando corretamente:
-
-1. Acesse o frontend através do navegador:
-   ```sh
-   http://seu-dominio:3000
-   ```
-2. Verifique se a API está respondendo:
-   ```sh
-   curl http://seu-dominio:8080/api/status
-   ```
-3. Certifique-se de que os canais estão ativos:
-   ```sh
-   docker logs arca-channels
-   ```
-4. Acesse o painel do Nginx Proxy Manager para configurar seu domínio e SSL:
-   ```sh
-   http://seu-dominio:81
-   ```
-
-Se tudo estiver configurado corretamente, sua Arca estará pronta para uso! 🚀
-
-## Próximos Passos
-
-Agora que a instalação foi concluída, confira os próximos tópicos para explorar mais funcionalidades:
-
-<CardGroup cols={2}>
-  <Card
-    title="Gerenciar Atendimentos"
-    icon="comments"
-    href="/docs/gestao-atendimentos"
-  >
-    Aprenda a gerenciar conversas e distribuir atendimentos.
-  </Card>
-  <Card
-    title="Configurar Integrações"
-    icon="plug"
-    href="/docs/integracoes"
-  >
-    Conecte sua Arca com Facebook, Instagram e outras plataformas.
-  </Card>
-</CardGroup>
+Agora, sua Arca está configurada e pronta para uso! 🚀
