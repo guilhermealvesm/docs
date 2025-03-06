@@ -11,14 +11,14 @@
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "Guia",
         "groups": [
           {
             "group": "Comece",
             "pages": [
               "Introdução",
-              "Começar",
-              "development"
+              "Iniciando",
+              "Development"
             ]
           },
           {
