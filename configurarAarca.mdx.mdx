@@ -1,0 +1,223 @@
+---
+title: Configurando sua Arca
+description: "Guia completo para instalar e configurar a Arca em seu ambiente."
+---
+
+## Pré-requisitos
+
+Antes de iniciar a instalação da Arca, verifique se você atende aos seguintes pré-requisitos:
+
+- Docker e Docker Compose instalados na máquina.
+- IP da máquina liberado em nossas licenças.
+- Acesso ao repositório da Arca para baixar os containers necessários.
+- Um domínio configurado para uso com o Nginx Proxy Manager.
+
+## Instalação
+
+A instalação da Arca é feita utilizando **Docker** e envolve os seguintes componentes:
+
+1. **Backend** - Responsável pelo processamento das solicitações.
+2. **Frontend** - Interface de usuário para gerenciar os atendimentos.
+3. **Channels** - Gerenciador de integrações com diferentes plataformas.
+4. **RabbitMQ** - Gerenciamento de filas para comunicação interna.
+5. **Redis** - Cache e gerenciamento de sessões.
+6. **PostgreSQL** - Banco de dados principal.
+7. **MinIO** - Armazenamento de arquivos compatível com S3.
+8. **Nginx Proxy Manager** - Proxy reverso para direcionamento de domínios e geração de SSL.
+
+### Passo 1: Instalar Docker e Docker Compose
+
+Caso ainda não tenha o Docker e o Docker Compose instalados, siga os comandos abaixo:
+
+```sh
+sudo apt update && sudo apt upgrade -y
+sudo apt install docker.io -y
+sudo apt install docker-compose -y
+sudo systemctl enable docker
+sudo systemctl start docker
+```
+
+Verifique a instalação executando:
+
+```sh
+docker --version
+docker-compose --version
+```
+
+### Passo 2: Baixar os arquivos necessários
+
+Clone o repositório contendo os arquivos de configuração:
+
+```sh
+git clone https://github.com/seu-repositorio/arca.git
+cd arca
+```
+
+### Passo 3: Configurar variáveis de ambiente
+
+No diretório do projeto, edite o arquivo `.env` com as configurações adequadas:
+
+```sh
+cp .env.example .env
+nano .env
+```
+
+Configure os parâmetros essenciais, incluindo a URL do backend, o banco de dados e o IP autorizado.
+
+### Passo 4: Configurar o `docker-compose.yml`
+
+O seguinte `docker-compose.yml` define todos os serviços necessários:
+
+```yaml
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: arca-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: arca
+      POSTGRES_PASSWORD: senha-segura
+      POSTGRES_DB: arca_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:latest
+    container_name: arca-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: arca-rabbitmq
+    restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: arca
+      RABBITMQ_DEFAULT_PASS: senha-segura
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  minio:
+    image: minio/minio
+    container_name: arca-minio
+    restart: always
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: arca
+      MINIO_ROOT_PASSWORD: senha-segura
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+
+  backend:
+    image: arca-backend:latest
+    container_name: arca-backend
+    restart: always
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+    ports:
+      - "8080:8080"
+    environment:
+      DATABASE_URL: postgres://arca:senha-segura@postgres:5432/arca_db
+
+  frontend:
+    image: arca-frontend:latest
+    container_name: arca-frontend
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+
+  channels:
+    image: arca-channels:latest
+    container_name: arca-channels
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "5000:5000"
+
+  nginx:
+    image: jc21/nginx-proxy-manager
+    container_name: arca-nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+      - "81:81"
+    volumes:
+      - nginx_data:/data
+      - nginx_letsencrypt:/etc/letsencrypt
+
+volumes:
+  postgres_data:
+  minio_data:
+  nginx_data:
+  nginx_letsencrypt:
+```
+
+### Passo 5: Iniciar os containers
+
+Execute o seguinte comando para subir os serviços:
+
+```sh
+docker-compose up -d
+```
+
+Aguarde até que os containers estejam em execução.
+
+## Validação da Instalação
+
+Após a instalação, certifique-se de que o IP da máquina está liberado em nossas licenças. Para verificar se a Arca está funcionando corretamente:
+
+1. Acesse o frontend através do navegador:
+   ```sh
+   http://seu-dominio:3000
+   ```
+2. Verifique se a API está respondendo:
+   ```sh
+   curl http://seu-dominio:8080/api/status
+   ```
+3. Certifique-se de que os canais estão ativos:
+   ```sh
+   docker logs arca-channels
+   ```
+4. Acesse o painel do Nginx Proxy Manager para configurar seu domínio e SSL:
+   ```sh
+   http://seu-dominio:81
+   ```
+
+Se tudo estiver configurado corretamente, sua Arca estará pronta para uso! 🚀
+
+## Próximos Passos
+
+Agora que a instalação foi concluída, confira os próximos tópicos para explorar mais funcionalidades:
+
+<CardGroup cols={2}>
+  <Card
+    title="Gerenciar Atendimentos"
+    icon="comments"
+    href="/docs/gestao-atendimentos"
+  >
+    Aprenda a gerenciar conversas e distribuir atendimentos.
+  </Card>
+  <Card
+    title="Configurar Integrações"
+    icon="plug"
+    href="/docs/integracoes"
+  >
+    Conecte sua Arca com Facebook, Instagram e outras plataformas.
+  </Card>
+</CardGroup>
