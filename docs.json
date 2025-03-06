@@ -14,10 +14,10 @@
         "tab": "Guides",
         "groups": [
           {
-            "group": "Get Started",
+            "group": "Comece",
             "pages": [
-              "introduction",
-              "quickstart",
+              "Introdução",
+              "Começar",
               "development"
             ]
           },
