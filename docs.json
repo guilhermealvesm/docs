@@ -16,7 +16,7 @@
           {
             "group": "Comece",
             "pages": [
-               "introduction",
+              "introduction",
               "quickstart",
               "Development",
               "microservice"
@@ -62,7 +62,7 @@
           "anchor": "Documentação",
           "href": "https://mintlify.com/docs",
           "icon": "book-open-cover"
-        },
+        }
       ]
     }
   },
