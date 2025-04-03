@@ -1,37 +1,50 @@
 ---
-title: 'Code Blocks'
-description: 'Display inline code and code blocks'
-icon: 'code'
+title: 'Softphone VoIP'
+description: 'Chamadas via WebRTC integradas com o PABX do cliente'
+icon: 'phone'
 ---
 
-## Basic
+## Visão Geral
 
-### Inline Code
+A funcionalidade de **Softphone VoIP** permite realizar e receber chamadas telefônicas diretamente do sistema **A Arca**, sem a necessidade de softwares externos.
 
-To denote a `word` or `phrase` as code, enclose it in backticks (`).
+Essa integração utiliza **WebRTC** e requer que o **PABX do cliente ofereça suporte ao protocolo**, além de outras condições mínimas.
 
-```
-To denote a `word` or `phrase` as code, enclose it in backticks (`).
-```
+## Como Funciona
 
-### Code Block
+1. O sistema conecta-se ao PABX via **WebRTC com suporte a SSL**.
+2. A comunicação é estabelecida por meio de **sockets**.
+3. Cada usuário pode ter um **ramal** vinculado à sua conta na plataforma.
+4. Através da interface, o usuário poderá:
+   - Fazer ligações
+   - Receber chamadas
+   - Visualizar status e histórico de chamadas
 
-Use [fenced code blocks](https://www.markdownguide.org/extended-syntax/#fenced-code-blocks) by enclosing code in three backticks and follow the leading ticks with the programming language of your snippet to get syntax highlighting. Optionally, you can also write the name of your code after the programming language.
+<Tip>
+A qualidade da ligação depende da estrutura do PABX e da configuração de rede. Certifique-se de que as portas necessárias estejam liberadas.
+</Tip>
 
-```java HelloWorld.java
-class HelloWorld {
-    public static void main(String[] args) {
-        System.out.println("Hello, World!");
-    }
-}
-```
+## Requisitos
 
-````md
-```java HelloWorld.java
-class HelloWorld {
-    public static void main(String[] args) {
-        System.out.println("Hello, World!");
-    }
-}
-```
-````
+- PABX compatível com WebRTC
+- Certificado SSL ativo (HTTPS)
+- Acesso via **socket.io** ou protocolo compatível
+- Ramais configurados por usuário no sistema *A Arca*
+
+## Benefícios
+
+- Centralização de comunicação dentro da plataforma
+- Facilidade de operação para equipe de atendimento
+- Redução de custos com soluções externas de telefonia
+
+## Status
+
+🔄 **Em validação**
+
+Essa feature está atualmente sendo testada com diferentes ambientes de PABX. Em breve, será liberada para uso em produção com documentação completa de integração.
+
+## Futuras Melhorias
+
+- Gravação de chamadas
+- Transcrição em tempo real
+- Integração com relatórios e auditorias
