@@ -1,88 +1,54 @@
 ---
-title: 'Markdown Syntax'
-description: 'Text, title, and styling in standard markdown'
-icon: 'text-size'
+title: 'Feature de Transcrição de Áudio'
+description: 'Transcreva automaticamente áudios recebidos e enviados utilizando a OpenAI'
+icon: 'mic'
 ---
 
-## Titles
+## Visão Geral
 
-Best used for section headers.
+A funcionalidade de **transcrição de áudio** permite transformar mensagens de voz em texto de forma automatizada. Sempre que um áudio for **enviado ou recebido**, ele será processado pela OpenAI, que realizará a transcrição do conteúdo.
 
-```md
-## Titles
-```
+Essa funcionalidade é ideal para manter o histórico de conversas em formato legível e facilitar buscas por palavras-chave dentro de áudios.
 
-### Subtitles
+## Como Funciona
 
-Best use to subsection headers.
-
-```md
-### Subtitles
-```
+1. O microserviço intercepta qualquer mensagem de áudio.
+2. O arquivo de áudio é enviado para a OpenAI.
+3. A OpenAI retorna a transcrição do conteúdo.
+4. A transcrição é armazenada e pode ser exibida como resposta ao áudio original.
 
 <Tip>
-
-Each **title** and **subtitle** creates an anchor and also shows up on the table of contents on the right.
-
+A transcrição é feita de forma assíncrona e transparente para o usuário, garantindo uma experiência fluida.
 </Tip>
 
-## Text Formatting
+## Requisitos
 
-We support most markdown formatting. Simply add `**`, `_`, or `~` around text to format it.
+- O áudio deve estar em formato compatível com o serviço da OpenAI (ex: `ogg`, `mp3`, `wav`).
+- A funcionalidade precisa estar habilitada na configuração da conexão.
 
-| Style         | How to write it   | Result          |
-| ------------- | ----------------- | --------------- |
-| Bold          | `**bold**`        | **bold**        |
-| Italic        | `_italic_`        | _italic_        |
-| Strikethrough | `~strikethrough~` | ~strikethrough~ |
+## Benefícios
 
-You can combine these. For example, write `**_bold and italic_**` to get **_bold and italic_** text.
+- Acessibilidade para usuários com dificuldades auditivas
+- Facilidade de busca e análise de conteúdos recebidos por voz
+- Melhoria no acompanhamento de tickets e histórico
 
-You need to use HTML to write superscript and subscript text. That is, add `<sup>` or `<sub>` around your text.
+## Exemplo de Resposta
 
-| Text Size   | How to write it          | Result                 |
-| ----------- | ------------------------ | ---------------------- |
-| Superscript | `<sup>superscript</sup>` | <sup>superscript</sup> |
-| Subscript   | `<sub>subscript</sub>`   | <sub>subscript</sub>   |
-
-## Linking to Pages
-
-You can add a link by wrapping text in `[]()`. You would write `[link to google](https://google.com)` to [link to google](https://google.com).
-
-Links to pages in your docs need to be root-relative. Basically, you should include the entire folder path. For example, `[link to text](/writing-content/text)` links to the page "Text" in our components section.
-
-Relative links like `[link to text](../text)` will open slower because we cannot optimize them as easily.
-
-## Blockquotes
-
-### Singleline
-
-To create a blockquote, add a `>` in front of a paragraph.
-
-> Dorothy followed her through many of the beautiful rooms in her castle.
-
-```md
-> Dorothy followed her through many of the beautiful rooms in her castle.
+```json
+{
+  "audioUrl": "https://link-do-audio",
+  "transcription": "Olá, gostaria de saber mais sobre seu serviço."
+}
 ```
 
-### Multiline
+## Futuras Integrações
 
-> Dorothy followed her through many of the beautiful rooms in her castle.
->
-> The Witch bade her clean the pots and kettles and sweep the floor and keep the fire fed with wood.
+Essa funcionalidade será compatível com outros canais como:
 
-```md
-> Dorothy followed her through many of the beautiful rooms in her castle.
->
-> The Witch bade her clean the pots and kettles and sweep the floor and keep the fire fed with wood.
-```
+- WhatsApp (via Baileys)
+- Facebook Messenger
+- Instagram
+- Evolution
+- Whastmeon
 
-### LaTeX
-
-Mintlify supports [LaTeX](https://www.latex-project.org) through the Latex component.
-
-<Latex>8 x (vk x H1 - H2) = (0,1)</Latex>
-
-```md
-<Latex>8 x (vk x H1 - H2) = (0,1)</Latex>
-```
+Isso permitirá a **transcrição unificada de áudios** em diversos canais integrados ao sistema *A Arca*.
