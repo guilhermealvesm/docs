@@ -1,4 +1,93 @@
+# 📤 Envio de Mensagens via API
+
+## Métodos de Envio Disponíveis
+
+1. **Mensagens de Texto**
+2. **Mensagens de Mídia**
+
 ---
-title: 'Create Plant'
-openapi: 'POST /plants'
+
+## 1. Mensagens de Texto
+
+Para enviar mensagens de texto simples via API:
+
+### ➕ Endpoint
+
+```
+POST https://testeapi.aarca.online/api/messages/send
+```
+
+### 🔐 Headers
+
+- `Authorization: Bearer <seu_token_cadastrado>`
+- `Content-Type: application/json`
+
+### 𞷾 Body (JSON)
+
+```json
+{
+  "number": "558599999999",
+  "body": "Mensagem de teste",
+  "userId": "ID do usuário ou \"\"",
+  "queueId": "ID da fila ou \"\"",
+  "sendSignature": true,
+  "closeTicket": false
+}
+```
+
 ---
+
+## 2. Mensagens de Mídia
+
+Para enviar mensagens com imagens, áudios, documentos ou outros tipos de arquivos:
+
+### ➕ Endpoint
+
+```
+POST https://testeapi.aarca.online/api/messages/send
+```
+
+### 🔐 Headers
+
+- `Authorization: Bearer <seu_token_cadastrado>`
+- `Content-Type: multipart/form-data`
+
+### 𞷾 FormData (Exemplo)
+
+- `number`: `558599999999`
+- `body`: `Mensagem de teste com mídia`
+- `userId`: `ID do usuário ou ""`
+- `queueId`: `ID da fila ou ""`
+- `medias`: `arquivo` (upload do arquivo)
+- `sendSignature`: `true` ou `false`
+- `closeTicket`: `true` ou `false`
+
+---
+
+## 🔐 Instruções de Autenticação
+
+Antes de realizar envios, é necessário cadastrar um token:
+
+1. Acesse o menu **Conexões**
+2. Clique no botão **Editar** da conexão desejada
+3. Insira o token no campo **Token API**
+4. Salve a alteração
+
+---
+
+## ℹ️ Observações Importantes
+
+- O **número de destino** deve:
+  - Ser composto por: **Código do País + DDD + Número**
+  - Estar **sem caracteres especiais**, espaços ou parêntheses.
+  - Exemplo: `558599999999`
+
+- Os envios devem ser feitos com o **token da conexão correta**, senão a mensagem será rejeitada.
+
+---
+
+## ✅ Exemplo de Número Válido
+
+```
+✅ Correto: 558599999999
+❌ Incorreto: (85) 99999-9999
