@@ -14,7 +14,7 @@
         "tab": "Guia",
         "groups": [
           {
-            "group": "Get Started",
+            "group": "Comece",
             "pages": [
                "introduction",
               "quickstart",
@@ -23,7 +23,7 @@
             ]
           },
           {
-            "group": "Essentials",
+            "group": "Fundamentos",
             "pages": [
               "essentials/markdown",
               "essentials/code",
@@ -59,20 +59,10 @@
     "global": {
       "anchors": [
         {
-          "anchor": "Documentation",
+          "anchor": "Documentação",
           "href": "https://mintlify.com/docs",
           "icon": "book-open-cover"
         },
-        {
-          "anchor": "Community",
-          "href": "https://mintlify.com/community",
-          "icon": "slack"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
       ]
     }
   },
