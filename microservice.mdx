@@ -1,0 +1,89 @@
+# Microservice: Channel Service
+
+## ✨ Visão Geral
+O **Channel Service** é um microserviço orientado a eventos, responsável por gerenciar os canais de comunicação da plataforma **A Arca**. Ele é responsável por receber, processar e enviar mensagens via diferentes canais.
+
+Atualmente, está integrado ao **WhatsApp Web** via a biblioteca **Baileys**. Em breve, também integrará:
+
+- Evolution
+- Facebook Messenger
+- Instagram Direct
+- Recursos da plataforma WhatsMeon
+
+Essa arquitetura baseada em eventos permite uma expansão rápida para novos canais.
+
+---
+
+## 📆 Arquitetura e Componentes
+
+### Diagrama Geral
+> _Você pode substituir este link por um link real hospedado no GitHub, CDN ou Mintlify_
+
+![Arquitetura](https://user-images.githubusercontent.com/placeholder/microservice-diagram.png)
+
+### Componentes Utilizados
+
+| Componente             | Função Principal                                     |
+|------------------------|--------------------------------------------------|
+| `baileys`              | Conecta com o WhatsApp Web via WebSocket        |
+| `@node-ts/bus-core`    | Abstrai mensagens e comandos do RabbitMQ        |
+| `redis`                | Cache rápido e filas simples                    |
+| `rabbitmq`             | Mensageria entre microserviços                 |
+| `ffmpeg`               | Processamento de mídia (ex: áudio)            |
+| `typescript`           | Tipagem estática e segurança de código           |
+
+---
+
+## 🔗 Dependências
+
+- **Node.js** 20+
+- **Redis** (padrão na porta 6379)
+- **RabbitMQ** (usuário/senha configurados no `.env`)
+- **PostgreSQL** (para persistência de eventos, se necessário)
+
+---
+
+## 🚀 Execução Local / Docker
+
+```bash
+# Build local
+npm install
+npm run build
+npm start
+
+# Docker
+docker build -t aarca_channel .
+docker run -d --env-file .env aarca_channel
+```
+
+---
+
+## 🌐 Roadmap de Canais
+
+| Canal         | Status             |
+|---------------|--------------------|
+| WhatsApp      | ✅ Implementado   |
+| Evolution     | ⏳ Em desenvolvimento |
+| Facebook      | ⚖ Planejado     |
+| Instagram     | ⚖ Planejado     |
+| WhatsMeon     | ✅ Parceria ativa |
+
+---
+
+## ⚙ Integração com o Backend
+
+Todos os eventos recebidos pelo Channel são enviados para o Backend da Arca via fila RabbitMQ. O backend é responsável por processar as mensagens, acionar webhooks e persistir os dados.
+
+---
+
+## 📅 Atualizações Futuras
+
+- Suporte nativo para grupos WhatsApp
+- Monitoramento de mensagens em tempo real via WebSocket
+- Painel de canais e status de conexão
+
+---
+
+## ⚡ Dújvidas?
+Entre em contato com a equipe de engenharia ou abra um PR com sugestões para este microserviço 🚀
+
