@@ -27,7 +27,7 @@
             "pages": [
               "essentials/markdown",
               "essentials/code",
-               "essentials/markdown",
+              "essentials/eventos-rabbitmq",
               "essentials/images",
               "essentials/settings",
               "essentials/navigation",
