@@ -11,14 +11,13 @@ description: Guia detalhado dos eventos, filas e handlers do sistema.
 3. [Handlers do Baileys](#handlers-do-baileys)
 4. [Consumidores](#consumidores)
 5. [Produtores](#produtores)
-6. [Configurações](#configuracoes)
+6. [Configurações](#configurações)
 
 ---
 
 ## Eventos RabbitMQ
 
-### Notification Consumer
-
+### 1. Notification Consumer
 **Arquivo:** `Backend-1/src/consumers/notification.consumer.ts`
 
 **Descrição:** Consumidor para notificações em tempo real via Socket.IO
@@ -26,12 +25,11 @@ description: Guia detalhado dos eventos, filas e handlers do sistema.
 **Queue:** `notification-queue`
 
 **Estrutura da Mensagem:**
-
-```ts
+```typescript
 {
   namespace: string,    // Namespace do Socket.IO
   channel: string,      // Canal do evento
-  data: any             // Dados da notificação
+  data: any            // Dados da notificação
 }
 ```
 
@@ -39,8 +37,7 @@ description: Guia detalhado dos eventos, filas e handlers do sistema.
 
 ---
 
-### Check Contact Number Producer
-
+### 2. Check Contact Number Producer
 **Arquivo:** `Backend-1/src/producers/check-contact-number.producer.ts`
 
 **Descrição:** Produtor para verificar números de contato
@@ -48,14 +45,15 @@ description: Guia detalhado dos eventos, filas e handlers do sistema.
 **Queue:** `check-contact-number-queue`
 
 **Parâmetros:**
-- `number: string`
-- `companyId: number`
-- `isGroup: boolean`
+- `number: string` - Número do telefone
+- `companyId: number` - ID da empresa
+- `isGroup: boolean` - Se é um grupo (padrão: false)
+
+**Retorno:** Resultado da verificação do contato
 
 ---
 
-### Create or Update Contact Producer
-
+### 3. Create or Update Contact Producer
 **Arquivo:** `Backend-1/src/producers/create-or-update-contact.producer.ts`
 
 **Descrição:** Produtor para criar ou atualizar contatos
@@ -63,21 +61,22 @@ description: Guia detalhado dos eventos, filas e handlers do sistema.
 **Queue:** `create-or-update-contact-queue`
 
 **Parâmetros:**
-- `whatsappId: string`
-- `name: string`
-- `number: string`
-- `isGroup: boolean`
-- `email: string`
-- `profilePicUrl: string`
-- `companyId: number`
-- `channel: string`
-- `extraInfo: any`
-- `remoteJid: string`
+- `whatsappId: string` - ID do WhatsApp
+- `name: string` - Nome do contato
+- `number: string` - Número do telefone
+- `isGroup: boolean` - Se é um grupo
+- `email: string` - Email do contato
+- `profilePicUrl: string` - URL da foto de perfil
+- `companyId: number` - ID da empresa
+- `channel: string` - Canal de comunicação
+- `extraInfo: any` - Informações extras
+- `remoteJid: string` - JID remoto
+
+**Retorno:** Resultado da criação/atualização do contato
 
 ---
 
-### Get Profile Picture Producer
-
+### 4. Get Profile Picture Producer
 **Arquivo:** `Backend-1/src/producers/get-profile-picture.producer.ts`
 
 **Descrição:** Produtor para obter foto de perfil
@@ -85,69 +84,73 @@ description: Guia detalhado dos eventos, filas e handlers do sistema.
 **Queue:** `get-profile-picture-queue`
 
 **Parâmetros:**
-- `number: string`
-- `companyId: number`
-- `whatsappId: number`
-- `contact?: Contact`
+- `number: string` - Número do telefone
+- `companyId: number` - ID da empresa
+- `whatsappId: number` - ID do WhatsApp
+- `contact?: Contact` - Objeto de contato (opcional)
+
+**Retorno:** URL da foto de perfil
 
 ---
 
 ## Eventos BullMQ (Redis)
 
-### Message Queue Producer
-
+### 1. Message Queue Producer
 **Arquivo:** `Backend-1/src/queues/producers/make-message.producer.ts`
 
-**Configurações:**
+**Descrição:** Produtor para filas de mensagens usando Redis
 
-```ts
+**Configurações:**
+```typescript
 MESSAGE_QUEUE_OPTIONS = {
-  attempts: 3,
+  attempts: 3,                    // Tentativas de retry
   backoff: {
-    type: "exponential",
-    delay: 100
+    type: "exponential",          // Tipo de backoff
+    delay: 100                    // Delay inicial
   },
-  removeOnComplete: true,
-  removeOnFail: false
+  removeOnComplete: true,         // Remove jobs completados
+  removeOnFail: false             // Mantém jobs falhados
 }
 ```
 
-**Funcionalidade:** Cria filas por empresa (`message-queue-company-${companyId}`)
+**Funcionalidade:** Cria filas de mensagens por empresa (`message-queue-company-${companyId}`)
 
 ---
 
-### Message Ack Queue Producer
-
+### 2. Message Ack Queue Producer
 **Arquivo:** `Backend-1/src/queues/producers/make-message-ack.producer.ts`
 
-**Configurações:** Mesmo que o Message Queue Producer
+**Descrição:** Produtor para confirmações de mensagens
 
-**Funcionalidade:** Fila de confirmações por empresa (`message-ack-queue-company-${companyId}`)
+**Configurações:** Mesmas configurações do Message Queue
+
+**Funcionalidade:** Cria filas de confirmação por empresa (`message-ack-queue-company-${companyId}`)
 
 ---
 
-### Queue Workers
-
+### 3. Queue Workers
 **Arquivo:** `Backend-1/src/queues/index.ts`
 
-**Funcionalidades:**
-- Inicialização de workers
-- Monitoramento de eventos
-- Shutdown gracioso
+**Descrição:** Gerenciamento de workers para processamento de mensagens
 
-**Filas:**
-- `message-queue-company-${companyId}`
-- `message-ack-queue-company-${companyId}`
+**Funcionalidades:**
+- Inicializa workers para cada empresa
+- Monitora eventos de workers (drained, completed, failed, error)
+- Gerencia shutdown graceful com SIGTERM
+
+**Workers por Empresa:**
+- `message-queue-company-${companyId}` - Processamento de mensagens
+- `message-ack-queue-company-${companyId}` - Confirmações de mensagens
 
 ---
 
 ## Handlers do Baileys
 
 ### Configuração do Event Bus
-
 **Arquivo:** `channel-2/src/bus-rabbitmq/bus-rabbitmq.ts`
 
-```ts
+**Configuração RabbitMQ:**
+```typescript
 {
   queueName: "event-bus-queue",
   connectionString: "amqp://guest:guest@localhost",
@@ -157,37 +160,73 @@ MESSAGE_QUEUE_OPTIONS = {
 }
 ```
 
-### Handlers:
+### Handlers Registrados:
 
-- **BaileysConnectHandler**: Conexão do WhatsApp
-- **BaileysRemoveHandler**: Remoção de conexão
-- **BaileysRestartHandler**: Reinício de conexão
-- **BaileysReadMessagesHandler**: Leitura de mensagens
-- **BaileysDeleteMessageHandler**: Exclusão de mensagens
-- **BaileysSendApiMessageHandler**: Envio via API
-- **BaileysSendRawMessageHandler**: Envio raw
-- **BaileysSendMediaMessageHandler**: Envio de mídia
-- **BaileysSendApiMediaMessageHandler**: Mídia via API
-- **BaileysSendMessageHandler**: Envio padrão
-- **BaileysSendProtoMessageHandler**: Envio protobuf
+#### 1. BaileysConnectHandler
+**Evento:** Conexão do WhatsApp
+**Funcionalidade:** Gerencia conexões do Baileys
+
+#### 2. BaileysRemoveHandler
+**Evento:** Remoção de conexão
+**Funcionalidade:** Remove conexões do WhatsApp
+
+#### 3. BaileysRestartHandler
+**Evento:** Reinicialização de conexão
+**Funcionalidade:** Reinicia conexões do Baileys
+
+#### 4. BaileysReadMessagesHandler
+**Evento:** Leitura de mensagens
+**Funcionalidade:** Processa mensagens recebidas
+
+#### 5. BaileysDeleteMessageHandler
+**Evento:** Exclusão de mensagens
+**Funcionalidade:** Remove mensagens
+
+#### 6. BaileysSendApiMessageHandler
+**Evento:** Envio de mensagens via API
+**Funcionalidade:** Envia mensagens através da API
+
+#### 7. BaileysSendRawMessageHandler
+**Evento:** Envio de mensagens raw
+**Funcionalidade:** Envia mensagens no formato raw
+
+#### 8. BaileysSendMediaMessageHandler
+**Evento:** Envio de mídia
+**Funcionalidade:** Envia arquivos de mídia
+
+#### 9. BaileysSendApiMediaMessageHandler
+**Evento:** Envio de mídia via API
+**Funcionalidade:** Envia mídia através da API
+
+#### 10. BaileysSendMessageHandler
+**Evento:** Envio de mensagens
+**Funcionalidade:** Envia mensagens padrão
+
+#### 11. BaileysSendProtoMessageHandler
+**Evento:** Envio de mensagens protobuf
+**Funcionalidade:** Envia mensagens no formato protobuf
 
 ---
 
 ## Configurações
 
-### Variáveis de Ambiente
+### Variáveis de Ambiente Necessárias:
 
 ```bash
+# RabbitMQ
 RABBITMQ_URI=amqp://guest:guest@localhost
 RABBITMQ_QUEUE_NAME=event-bus-queue
-REDIS_MSG_QUEUE=true
+
+# Redis (para BullMQ)
+REDIS_MSG_QUEUE=true/false
 REDIS_URI_MSG_CONNECTION=redis://localhost:6379
-NODE_ENV=development
+
+# Configurações Gerais
+NODE_ENV=development/production
 ```
 
-### Concorrência e Retry
-
-- **Concorrência:** 5 handlers
+### Configurações de Concorrência:
+- **Concorrência do Event Bus:** 5 handlers simultâneos
 - **Retry Policy:** 3 tentativas com backoff exponencial
 - **Persistência:** Mensagens persistentes habilitadas
 
@@ -195,67 +234,162 @@ NODE_ENV=development
 
 ## Fluxo de Eventos
 
-### Recebimento de Mensagem
+### 1. Recebimento de Mensagem
 
-1. Baileys recebe
-2. `BaileysReadMessagesHandler` processa
-3. Vai para Redis
-4. Worker salva no banco
-5. Notifica via Socket.IO
+**Descrição:** Evento disparado quando uma nova mensagem é recebida em qualquer canal (WhatsApp, Facebook, Instagram, etc).
 
-### Envio de Mensagem
+#### Campos Recebidos (payload da mensagem):
 
-1. Frontend solicita
-2. `BaileysSendMessageHandler` processa
-3. Baileys envia
-4. Confirmação via `BaileysSendMessageAckHandler`
+| Campo        | Tipo     | Descrição                                      | Obrigatório |
+|--------------|----------|------------------------------------------------|-------------|
+| channel      | string   | Canal de origem (ex: whatsapp, facebook)        | Sim         |
+| companyId    | number   | ID da empresa                                  | Sim         |
+| senderId     | string   | ID do remetente                                | Sim         |
+| senderName   | string   | Nome do remetente                              | Não         |
+| messageId    | string   | ID da mensagem                                 | Sim         |
+| content      | string   | Conteúdo da mensagem                           | Sim         |
+| timestamp    | number   | Data/hora do envio (timestamp)                  | Sim         |
+| mediaUrl     | string   | URL da mídia (se houver)                       | Não         |
+| extra        | object   | Campos extras específicos do canal              | Não         |
 
-### Notificações em Tempo Real
+#### Exemplo de Payload Recebido:
+```json
+{
+  "channel": "whatsapp",
+  "companyId": 1,
+  "senderId": "5541999999999",
+  "senderName": "João",
+  "messageId": "ABCD1234",
+  "content": "Olá, tudo bem?",
+  "timestamp": 1712345678,
+  "mediaUrl": null,
+  "extra": {}
+}
+```
 
-1. Evento backend
-2. `NotificationConsumer` recebe
-3. Emissão Socket.IO
-4. Frontend atualiza UI
+#### Resposta Esperada:
+
+| Campo     | Tipo   | Descrição                                 |
+|-----------|--------|-------------------------------------------|
+| status    | string | Status do processamento (ok, erro)        |
+| savedId   | string | ID salvo no banco                         |
+| error     | string | Mensagem de erro (se houver)              |
+
+---
+
+### 2. Envio de Mensagem
+
+**Descrição:** Utilizado para enviar mensagens para qualquer canal.
+
+#### Campos para Envio:
+
+| Campo        | Tipo     | Descrição                                      | Obrigatório |
+|--------------|----------|------------------------------------------------|-------------|
+| channel      | string   | Canal de destino (ex: whatsapp, facebook)       | Sim         |
+| companyId    | number   | ID da empresa                                  | Sim         |
+| recipientId  | string   | ID do destinatário                             | Sim         |
+| content      | string   | Conteúdo da mensagem                           | Sim         |
+| mediaUrl     | string   | URL da mídia (se houver)                       | Não         |
+| extra        | object   | Campos extras específicos do canal              | Não         |
+
+#### Exemplo de Payload para Envio:
+```json
+{
+  "channel": "facebook",
+  "companyId": 1,
+  "recipientId": "123456789",
+  "content": "Olá pelo Facebook!",
+  "mediaUrl": null,
+  "extra": {}
+}
+```
+
+#### Resposta Esperada:
+
+| Campo     | Tipo   | Descrição                                 |
+|-----------|--------|-------------------------------------------|
+| status    | string | Status do envio (ok, erro)                |
+| messageId | string | ID da mensagem enviada                    |
+| error     | string | Mensagem de erro (se houver)              |
+
+---
+
+### 3. Notificações em Tempo Real
+
+**Descrição:** Evento para envio de notificações em tempo real para o frontend, independente do canal.
+
+#### Campos para Envio:
+
+| Campo        | Tipo     | Descrição                                      | Obrigatório |
+|--------------|----------|------------------------------------------------|-------------|
+| namespace    | string   | Namespace do Socket.IO                         | Sim         |
+| channel      | string   | Canal do evento                                | Sim         |
+| data         | any      | Dados da notificação                           | Sim         |
+
+#### Exemplo de Payload para Envio:
+```json
+{
+  "namespace": "/notificacoes",
+  "channel": "mensagem-recebida",
+  "data": {
+    "messageId": "ABCD1234",
+    "content": "Olá, tudo bem?",
+    "channel": "instagram"
+  }
+}
+```
+
+#### Resposta Esperada:
+
+| Campo     | Tipo   | Descrição                                 |
+|-----------|--------|-------------------------------------------|
+| status    | string | Status do envio (ok, erro)                |
+| error     | string | Mensagem de erro (se houver)              |
 
 ---
 
 ## Monitoramento e Logs
 
-### Eventos:
-- `drained`, `completed`, `failed`, `error`
-- Tempo de mensagem
-- Status de conexão
+### Eventos Monitorados:
+- **Worker Events:** drained, completed, failed, error
+- **Message Timing:** Duração de processamento de mensagens
+- **Connection Status:** Status das conexões RabbitMQ e Redis
 
-### Logs:
-- Inicialização
-- Falhas
-- Duração
-- Conexões
+### Logs Importantes:
+- Inicialização de workers
+- Falhas de processamento
+- Tempo de processamento de mensagens
+- Status de conexões
 
 ---
 
 ## Troubleshooting
 
-### Problemas Comuns
+### Problemas Comuns:
 
-1. **Mensagens não processadas:**
-   - `REDIS_MSG_QUEUE=true`
-   - Redis up
-   - Workers ativos
+1. **Mensagens não sendo processadas:**
+   - Verificar se `REDIS_MSG_QUEUE=true`
+   - Verificar conexão Redis
+   - Verificar workers ativos
 
-2. **Notificações ausentes:**
-   - RabbitMQ up
-   - `NotificationConsumer` ativo
-   - Socket.IO configurado
+2. **Notificações não chegando:**
+   - Verificar conexão RabbitMQ
+   - Verificar `NotificationConsumer` ativo
+   - Verificar Socket.IO no frontend
 
 3. **Conexões Baileys falhando:**
-   - Handlers registrados
-   - Event Bus ok
-   - Ver logs
+   - Verificar handlers registrados
+   - Verificar configuração do Event Bus
+   - Verificar logs de erro
 
-### Comandos de Debug
-
+### Comandos de Debug:
 ```bash
+# Verificar workers ativos
 ps aux | grep node
+
+# Verificar filas Redis
 redis-cli LLEN message-queue-company-1
+
+# Verificar conexão RabbitMQ
 rabbitmqctl list_queues
+``` 
